@@ -1,106 +1,229 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { motion } from "framer-motion";
-
-const questions = [
-  {
-    question: "Was ist die Hauptstadt von Frankreich?",
-    options: ["Berlin", "Madrid", "Paris", "Rom"],
-    answer: "Paris",
-  },
-  {
-    question: "Welches Element hat das chemische Symbol 'O'?",
-    options: ["Gold", "Sauerstoff", "Silber", "Helium"],
-    answer: "Sauerstoff",
-  },
-  {
-    question: "Wer schrieb 'Faust'?",
-    options: ["Goethe", "Schiller", "Lessing", "Kafka"],
-    answer: "Goethe",
-  },
-];
-
-function shuffleArray(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
-export default function EliteQuiz() {
-  const [agreed, setAgreed] = useState(false);
-  const [startQuiz, setStartQuiz] = useState(false);
-  const [shuffledQuestions, setShuffledQuestions] = useState([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [score, setScore] = useState(0);
-
-  const startTest = () => {
-    setShuffledQuestions(shuffleArray([...questions]));
-    setStartQuiz(true);
-  };
-
-  const handleNextQuestion = () => {
-    if (selectedAnswer === shuffledQuestions[currentQuestion].answer) {
-      setScore(score + 1);
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bildungsseite - Role Play Test</title>
+  <style>
+    /* Grundlegendes Styling */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
     }
-    setSelectedAnswer(null);
-    if (currentQuestion + 1 < shuffledQuestions.length) {
-      setCurrentQuestion(currentQuestion + 1);
-    } else {
-      alert(`Quiz beendet! Dein Score: ${score + 1}/${shuffledQuestions.length}`);
-      setStartQuiz(false);
-      setCurrentQuestion(0);
-      setScore(0);
-    }
-  };
 
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
-      {!startQuiz ? (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-lg bg-gray-800 p-6 rounded-2xl shadow-lg"
-        >
-          <h2 className="text-xl font-bold mb-4">Hinweis</h2>
-          <p>
-            Ich bin darüber informiert, dass diese Seite nur zu Role Play Zwecken dient
-            und nicht im realen Leben relevant ist. Ich stimme dem zu, dass ich die
-            Tests auf dieser Seite ohne Hilfsmittel durchführen werde, und bin im
-            Klaren, dass meine Daten zur Auswertung verwendet werden dürfen.
-          </p>
-          <div className="mt-4 flex items-center">
-            <Checkbox checked={agreed} onCheckedChange={() => setAgreed(!agreed)} />
-            <label className="ml-2">Ja, ich bin einverstanden.</label>
-          </div>
-          <Button className="mt-4 w-full" disabled={!agreed} onClick={startTest}>
-            Zum Test
-          </Button>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="max-w-lg bg-gray-800 p-6 rounded-2xl shadow-lg"
-        >
-          <h2 className="text-xl font-bold mb-4">Frage {currentQuestion + 1}</h2>
-          <p className="mb-4">{shuffledQuestions[currentQuestion].question}</p>
-          {shuffledQuestions[currentQuestion].options.map((option, index) => (
-            <Button
-              key={index}
-              className={`w-full my-2 ${selectedAnswer === option ? "bg-blue-500" : ""}`}
-              onClick={() => setSelectedAnswer(option)}
-            >
-              {option}
-            </Button>
-          ))}
-          <Button className="mt-4 w-full" disabled={!selectedAnswer} onClick={handleNextQuestion}>
-            Weiter
-          </Button>
-        </motion.div>
-      )}
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #2e3d49;
+      text-align: center;
+    }
+
+    .explanation {
+      font-size: 16px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* Styling für den Zustimmungsbereich */
+    .agreement {
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      background-color: #007BFF;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: not-allowed;
+      opacity: 0.6;
+      transition: background-color 0.3s ease, opacity 0.3s ease;
+    }
+
+    .btn.active {
+      cursor: pointer;
+      opacity: 1;
+      background-color: #0056b3;
+    }
+
+    .questions {
+      margin-top: 30px;
+    }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .answers {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .answers li {
+      margin-bottom: 10px;
+    }
+
+    .answers button {
+      width: 100%;
+      padding: 10px;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .answers button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .result {
+      font-size: 20px;
+      text-align: center;
+      margin-top: 30px;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 14px;
+      color: #777;
+    }
+
+    /* Animationen */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .fade {
+      animation: fadeIn 1s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container fade">
+    <h1>Willkommen zur Bildungsseite</h1>
+    <div class="explanation">
+      <p>Ich bin darüber informiert, dass diese Seite nur zu Role Play Zwecken dient und nicht im Realen Leben relevant ist. Ich stimme dem zu, dass ich die Tests in der Seite ohne Hilfsmittel durchführen werde und ich bin im Klaren, dass meine Daten, die ich hier preisgebe, zur Auswertung verwendet werden dürfen.</p>
     </div>
-  );
-}
+
+    <div class="agreement">
+      <input type="checkbox" id="agree" />
+      <label for="agree">Ja, ich bin einverstanden und bin dem im Klaren.</label>
+    </div>
+
+    <button id="startButton" class="btn" disabled>Zum Test</button>
+
+    <div id="quiz" class="questions" style="display: none;">
+      <div class="question" id="questionText"></div>
+      <ul class="answers" id="answersList"></ul>
+      <button id="nextButton" class="btn" style="margin-top: 20px;">Nächste Frage</button>
+    </div>
+
+    <div id="result" class="result" style="display: none;"></div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2025 Bildungsseite. Alle Rechte vorbehalten.</p>
+  </div>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const agreeCheckbox = document.getElementById('agree');
+    const quizDiv = document.getElementById('quiz');
+    const nextButton = document.getElementById('nextButton');
+    const resultDiv = document.getElementById('result');
+    const questionText = document.getElementById('questionText');
+    const answersList = document.getElementById('answersList');
+
+    const questions = [
+      {
+        question: 'Was ist die Hauptstadt von Deutschland?',
+        answers: ['Berlin', 'Munich', 'Hamburg', 'Frankfurt'],
+        correctAnswer: 'Berlin'
+      },
+      {
+        question: 'Was ist 2 + 2?',
+        answers: ['3', '4', '5', '6'],
+        correctAnswer: '4'
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    // Aktivieren des Start-Buttons
+    agreeCheckbox.addEventListener('change', () => {
+      startButton.disabled = !agreeCheckbox.checked;
+      startButton.classList.toggle('active', agreeCheckbox.checked);
+    });
+
+    // Start des Tests
+    startButton.addEventListener('click', () => {
+      startButton.style.display = 'none';
+      showQuestion();
+    });
+
+    // Zeigen einer Frage und deren Antwortmöglichkeiten
+    function showQuestion() {
+      const question = questions[currentQuestion];
+      questionText.textContent = question.question;
+      answersList.innerHTML = '';
+      question.answers.forEach(answer => {
+        const button = document.createElement('button');
+        button.textContent = answer;
+        button.onclick = () => checkAnswer(answer, question.correctAnswer);
+        const listItem = document.createElement('li');
+        listItem.appendChild(button);
+        answersList.appendChild(listItem);
+      });
+      quizDiv.style.display = 'block';
+    }
+
+    // Überprüfen der Antwort
+    function checkAnswer(selectedAnswer, correctAnswer) {
+      if (selectedAnswer === correctAnswer) {
+        score++;
+      }
+      nextButton.style.display = 'block';
+    }
+
+    // Nächste Frage oder Ergebnis anzeigen
+    nextButton.addEventListener('click', () => {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        showResult();
+      }
+      nextButton.style.display = 'none';
+    });
+
+    // Ergebnisse anzeigen
+    function showResult() {
+      quizDiv.style.display = 'none';
+      resultDiv.style.display = 'block';
+      resultDiv.textContent = `Ihr Ergebnis: ${score} von ${questions.length} korrekt.`;
+    }
+  </script>
+
+</body>
+</html>
