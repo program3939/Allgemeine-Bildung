@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bildungsseite - Role Play Test</title>
+  <title>Bildungsplattform - Akademische Unterstützung</title>
   <style>
     /* Grundlegendes Styling */
     body {
@@ -58,6 +58,7 @@
 
     .questions {
       margin-top: 30px;
+      display: none;
     }
 
     .question {
@@ -102,6 +103,36 @@
       color: #777;
     }
 
+    /* Countdown Circle */
+    .countdown {
+      position: absolute;
+      bottom: 30px;
+      left: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: #ff6600;
+      color: white;
+      font-size: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Unschärfe Effekt */
+    .blurred-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      filter: blur(10px);
+      z-index: -1;
+    }
+
     /* Animationen */
     @keyframes fadeIn {
       0% {
@@ -115,34 +146,52 @@
     .fade {
       animation: fadeIn 1s ease-in-out;
     }
+
+    /* Countdown für jede Frage */
+    @keyframes timerCountdown {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(0);
+      }
+    }
+
+    .countdown-animation {
+      animation: timerCountdown 5s linear forwards;
+    }
+
   </style>
 </head>
 <body>
 
   <div class="container fade">
-    <h1>Willkommen zur Bildungsseite</h1>
+    <h1>Willkommen auf der Akademischen Plattform</h1>
     <div class="explanation">
-      <p>Ich bin darüber informiert, dass diese Seite nur zu Role Play Zwecken dient und nicht im Realen Leben relevant ist. Ich stimme dem zu, dass ich die Tests in der Seite ohne Hilfsmittel durchführen werde und ich bin im Klaren, dass meine Daten, die ich hier preisgebe, zur Auswertung verwendet werden dürfen.</p>
+      <p>Unsere Plattform ist darauf ausgerichtet, das Volk zu bilden und zu unterstützen, indem wir eine akademische Umgebung schaffen, die das Lernen fördert. Wir bieten Tests und Schulungen, um das Wissen in verschiedenen Bereichen zu vertiefen und zu erweitern.</p>
+      <p>Bitte beachten Sie, dass Ihre Daten nur für die Auswertung des Tests verwendet werden und alle Ergebnisse vertraulich behandelt werden.</p>
     </div>
 
     <div class="agreement">
       <input type="checkbox" id="agree" />
-      <label for="agree">Ja, ich bin einverstanden und bin dem im Klaren.</label>
+      <label for="agree">Ja, ich bin einverstanden und bin mir der Bedingungen bewusst.</label>
     </div>
 
     <button id="startButton" class="btn" disabled>Zum Test</button>
 
-    <div id="quiz" class="questions" style="display: none;">
+    <div id="quiz" class="questions">
       <div class="question" id="questionText"></div>
       <ul class="answers" id="answersList"></ul>
-      <button id="nextButton" class="btn" style="margin-top: 20px;">Nächste Frage</button>
+      <button id="nextButton" class="btn" style="display:none;">Nächste Frage</button>
+      <div id="countdown" class="countdown">5</div>
+      <div id="blur" class="blurred-background"></div>
     </div>
 
     <div id="result" class="result" style="display: none;"></div>
   </div>
 
   <div class="footer">
-    <p>&copy; 2025 Bildungsseite. Alle Rechte vorbehalten.</p>
+    <p>&copy; 2025 Akademische Plattform. Alle Rechte vorbehalten.</p>
   </div>
 
   <script>
@@ -153,11 +202,13 @@
     const resultDiv = document.getElementById('result');
     const questionText = document.getElementById('questionText');
     const answersList = document.getElementById('answersList');
+    const countdown = document.getElementById('countdown');
+    const blurEffect = document.getElementById('blur');
 
     const questions = [
       {
         question: 'Was ist die Hauptstadt von Deutschland?',
-        answers: ['Berlin', 'Munich', 'Hamburg', 'Frankfurt'],
+        answers: ['Berlin', 'München', 'Hamburg', 'Frankfurt'],
         correctAnswer: 'Berlin'
       },
       {
@@ -196,6 +247,7 @@
         answersList.appendChild(listItem);
       });
       quizDiv.style.display = 'block';
+      startCountdown();
     }
 
     // Überprüfen der Antwort
@@ -204,6 +256,28 @@
         score++;
       }
       nextButton.style.display = 'block';
+      stopCountdown();
+    }
+
+    // Timer für jede Frage
+    let timer;
+    function startCountdown() {
+      let time = 5;
+      countdown.textContent = time;
+      countdown.classList.add('countdown-animation');
+
+      timer = setInterval(() => {
+        time--;
+        countdown.textContent = time;
+        if (time === 0) {
+          nextButton.style.display = 'block';
+          stopCountdown();
+        }
+      }, 1000);
+    }
+
+    function stopCountdown() {
+      clearInterval(timer);
     }
 
     // Nächste Frage oder Ergebnis anzeigen
