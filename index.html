@@ -1,0 +1,106 @@
+import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { motion } from "framer-motion";
+
+const questions = [
+  {
+    question: "Was ist die Hauptstadt von Frankreich?",
+    options: ["Berlin", "Madrid", "Paris", "Rom"],
+    answer: "Paris",
+  },
+  {
+    question: "Welches Element hat das chemische Symbol 'O'?",
+    options: ["Gold", "Sauerstoff", "Silber", "Helium"],
+    answer: "Sauerstoff",
+  },
+  {
+    question: "Wer schrieb 'Faust'?",
+    options: ["Goethe", "Schiller", "Lessing", "Kafka"],
+    answer: "Goethe",
+  },
+];
+
+function shuffleArray(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+export default function EliteQuiz() {
+  const [agreed, setAgreed] = useState(false);
+  const [startQuiz, setStartQuiz] = useState(false);
+  const [shuffledQuestions, setShuffledQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [score, setScore] = useState(0);
+
+  const startTest = () => {
+    setShuffledQuestions(shuffleArray([...questions]));
+    setStartQuiz(true);
+  };
+
+  const handleNextQuestion = () => {
+    if (selectedAnswer === shuffledQuestions[currentQuestion].answer) {
+      setScore(score + 1);
+    }
+    setSelectedAnswer(null);
+    if (currentQuestion + 1 < shuffledQuestions.length) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      alert(`Quiz beendet! Dein Score: ${score + 1}/${shuffledQuestions.length}`);
+      setStartQuiz(false);
+      setCurrentQuestion(0);
+      setScore(0);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4">
+      {!startQuiz ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-lg bg-gray-800 p-6 rounded-2xl shadow-lg"
+        >
+          <h2 className="text-xl font-bold mb-4">Hinweis</h2>
+          <p>
+            Ich bin darüber informiert, dass diese Seite nur zu Role Play Zwecken dient
+            und nicht im realen Leben relevant ist. Ich stimme dem zu, dass ich die
+            Tests auf dieser Seite ohne Hilfsmittel durchführen werde, und bin im
+            Klaren, dass meine Daten zur Auswertung verwendet werden dürfen.
+          </p>
+          <div className="mt-4 flex items-center">
+            <Checkbox checked={agreed} onCheckedChange={() => setAgreed(!agreed)} />
+            <label className="ml-2">Ja, ich bin einverstanden.</label>
+          </div>
+          <Button className="mt-4 w-full" disabled={!agreed} onClick={startTest}>
+            Zum Test
+          </Button>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="max-w-lg bg-gray-800 p-6 rounded-2xl shadow-lg"
+        >
+          <h2 className="text-xl font-bold mb-4">Frage {currentQuestion + 1}</h2>
+          <p className="mb-4">{shuffledQuestions[currentQuestion].question}</p>
+          {shuffledQuestions[currentQuestion].options.map((option, index) => (
+            <Button
+              key={index}
+              className={`w-full my-2 ${selectedAnswer === option ? "bg-blue-500" : ""}`}
+              onClick={() => setSelectedAnswer(option)}
+            >
+              {option}
+            </Button>
+          ))}
+          <Button className="mt-4 w-full" disabled={!selectedAnswer} onClick={handleNextQuestion}>
+            Weiter
+          </Button>
+        </motion.div>
+      )}
+    </div>
+  );
+}
